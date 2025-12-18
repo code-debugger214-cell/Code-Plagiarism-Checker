@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Code Plagiarism Checker</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header>
+    <h1>Code Plagiarism Checker</h1>
+    <p>Analyze source code similarity with confidence</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Paste Your Source Code</h2>
+        <textarea id="codeInput" placeholder="Paste your source code here..."></textarea>
+
+        <button onclick="checkPlagiarism()">Check Plagiarism</button>
+    </div>
+
+    <div class="card result-card" id="result" style="display:none;">
+        <h2>Plagiarism Analysis Result</h2>
+
+        <div class="result-grid">
+            <div><span>Matched File</span><p id="file"></p></div>
+            <div><span>Match Score</span><p id="score"></p></div>
+            <div><span>Risk Level</span><p id="risk"></p></div>
+            <div><span>Confidence Index</span><p id="confidence"></p></div>
+        </div>
+
+        <div class="final-statement" id="statement"></div>
+    </div>
+
+</div>
+
+<footer>
+    <p>Academic Plagiarism Detection System | Flask + Python</p>
+</footer>
+
+<script>
+function checkPlagiarism() {
+    const code = document.getElementById("codeInput").value;
+
+    if (!code.trim()) {
+        alert("Please paste some source code.");
+        return;
+    }
+
+    fetch("/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code })
+    })
+    .then(res => res.json())
+    .then(data => {
+        const r = data.most_similar_file;
+
+        document.getElementById("file").innerText = r.file;
+        document.getElementById("score").innerText = r.match_score + "%";
+        document.getElementById("risk").innerText = r.plagiarism_risk;
+        document.getElementById("confidence").innerText = r.plagiarism_confidence_index + "%";
+        document.getElementById("statement").innerText = r.plagiarism_statement;
+
+        document.getElementById("result").style.display = "block";
+    })
+    .catch(() => alert("Server error. Please try again."));
+}
+</script>
+
+</body>
+</html>
